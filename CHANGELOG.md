@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1
+
+- Use official database brand artwork with recorded source attribution.
+
+
 ## 1.3.0
 
 - Require explicit warehouse and least-privilege role before native variable interpolation.
