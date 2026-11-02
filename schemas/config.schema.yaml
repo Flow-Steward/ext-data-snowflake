@@ -8,6 +8,8 @@ required:
 - user
 - database
 - schema
+- warehouse
+- role
 properties:
   prebuilt:
     type: string
@@ -37,12 +39,13 @@ properties:
   warehouse:
     type: string
     title: Warehouse
-    description: Snowflake compute warehouse. The pinned driver defaults to COMPUTE_WH when omitted.
+    description: Explicit Snowflake warehouse; choose the intended warehouse and a least-privilege role.
+    minLength: 1
   role:
     type: string
     title: Role
-    description: Snowflake role. Set an appropriate least-privilege role; the pinned driver defaults
-      to ACCOUNTADMIN when omitted.
+    description: Explicit Snowflake role; choose the intended warehouse and a least-privilege role.
+    minLength: 1
   env:
     type: object
     title: Advanced Snowflake environment
@@ -58,6 +61,8 @@ properties:
         type: string
       SNOWFLAKE_WAREHOUSE:
         type: string
+        minLength: 1
       SNOWFLAKE_ROLE:
         type: string
+        minLength: 1
     description: Optional Snowflake source environment overrides only. Credentials belong in secrets.

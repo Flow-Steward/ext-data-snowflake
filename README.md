@@ -12,12 +12,12 @@ Create a project connection using these settings:
 | `user` | Snowflake user. Required. |
 | `database` | Snowflake database. Required. |
 | `schema` | Snowflake schema (required by the pinned source). Required. |
-| `warehouse` | Snowflake compute warehouse. The pinned driver defaults to COMPUTE_WH when omitted. Optional. |
-| `role` | Snowflake role. Set an appropriate least-privilege role; the pinned driver defaults to ACCOUNTADMIN when omitted. Optional. |
+| `warehouse` | Explicit Snowflake compute warehouse. Required. |
+| `role` | Explicit least-privilege Snowflake role. Required. |
 
-Store the Snowflake user password in the connection secrets. The pinned source requires a nonempty password; datasets may alternatively use their password environment secret. Dataset advanced environment exposes only the named SNOWFLAKE_ source variables; password overrides remain in secrets. Writer connections use the explicit settings above.
+Store the Snowflake user password in the connection secrets. The pinned source requires a nonempty password; datasets may alternatively use their password environment secret. Resolved dataset secret environment values are forwarded to the native process; direct environment overrides retain their established precedence. Dataset advanced environment exposes only the named SNOWFLAKE_ source variables; password overrides remain in secrets. Writer connections use the explicit settings above.
 
-Preserve the account identifier, schema, warehouse and role required by your deployment. The pinned driver defaults omitted warehouse to `COMPUTE_WH` and omitted role to `ACCOUNTADMIN`; explicitly choose a least-privilege role. This pinned interface uses user/password authentication rather than a generic cloud project, region or instance form.
+Preserve the account identifier, schema, warehouse and role required by your deployment. Both warehouse and role must be supplied explicitly: native prebuilt interpolation resolves these variables before source-level defaults, so this extension does not rely on hidden defaults. Choose a least-privilege role. This pinned interface uses user/password authentication rather than a generic cloud project, region or instance form.
 
 ## Read datasets and write from workflows
 
@@ -27,7 +27,7 @@ Datasets support connection testing, typed schema introspection, saved SQL, visu
 
 The host resolves matching project configuration and secrets, account/project scope, execution context and a durable external-effect claim. Test mode suppresses writes before a driver starts. Writes execute once; uncertain dispatched failures return `retryable: false` and require checking the database before a manual retry. Workflow writes do not make dataset queries writable.
 
-The bounded SQL subset refuses raw dollar characters and backslashes in read SQL; write SQL also refuses raw dollar characters. Put those values in bound parameters. A top-level read LIMIT accepts one integer literal with an optional integer OFFSET. SQL and runtime safety guards are unchanged in 1.3.0.
+The bounded SQL subset refuses raw dollar characters and backslashes in read SQL; write SQL also refuses raw dollar characters. Put those values in bound parameters. A top-level read LIMIT accepts one integer literal with an optional integer OFFSET. The existing SQL safety guards are unchanged; 1.3.0 adds database-specific settings validation and preserves native payloads.
 
 ## Upgrade compatibility
 
