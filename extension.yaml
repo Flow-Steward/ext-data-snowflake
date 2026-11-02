@@ -134,6 +134,9 @@ runtime:
             type: string
             title: Snowflake password
             description: Password for the selected Snowflake user.
+            minLength: 1
+        required:
+        - password
       capabilities:
         write_queries: true
       safety_profile:
@@ -232,6 +235,7 @@ runtime:
             type: string
             title: Snowflake password
             description: Password for the selected Snowflake user.
+            minLength: 1
           env:
             type: object
             title: Advanced Snowflake secret environment
@@ -239,7 +243,17 @@ runtime:
             properties:
               SNOWFLAKE_PASSWORD:
                 type: string
+                minLength: 1
             description: Optional Snowflake password environment override.
+        anyOf:
+        - required:
+          - password
+        - required:
+          - env
+          properties:
+            env:
+              required:
+              - SNOWFLAKE_PASSWORD
       capabilities:
         read_only: true
         test_connection: true

@@ -15,7 +15,7 @@ Create a project connection using these settings:
 | `warehouse` | Snowflake compute warehouse. The pinned driver defaults to COMPUTE_WH when omitted. Optional. |
 | `role` | Snowflake role. Set an appropriate least-privilege role; the pinned driver defaults to ACCOUNTADMIN when omitted. Optional. |
 
-Store the Snowflake user password in the connection secrets. Dataset advanced environment exposes only the named SNOWFLAKE_ source variables; password overrides remain in secrets. Writer connections use the explicit settings above.
+Store the Snowflake user password in the connection secrets. The pinned source requires a nonempty password; datasets may alternatively use their password environment secret. Dataset advanced environment exposes only the named SNOWFLAKE_ source variables; password overrides remain in secrets. Writer connections use the explicit settings above.
 
 Preserve the account identifier, schema, warehouse and role required by your deployment. The pinned driver defaults omitted warehouse to `COMPUTE_WH` and omitted role to `ACCOUNTADMIN`; explicitly choose a least-privilege role. This pinned interface uses user/password authentication rather than a generic cloud project, region or instance form.
 
