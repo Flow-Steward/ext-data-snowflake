@@ -1,6 +1,7 @@
 component_id: toolbox_dataset_connector_overview
 type: markdown
-title: Snowflake Connector
-body: Read Snowflake datasets with schema introspection, saved SQL and visual queries.
-  Workflows can execute one parameterized INSERT, UPDATE or DELETE through a project
-  connection. Writes require a host effect claim and are suppressed in test mode.
+title: Snowflake setup
+body: Read Snowflake datasets with schema introspection and saved SQL. Configure account identifier,
+  user, database, schema. Workflows can execute one parameterized INSERT, UPDATE or DELETE through a
+  Snowflake project connection. Writes require a host effect claim and are suppressed in test mode.
+  Schema is required; warehouse and role remain available. Set a least-privilege role explicitly.

@@ -1,148 +1,63 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-title: Google MCP Toolbox Dataset Connector Configuration
 type: object
+title: Snowflake connection settings
 additionalProperties: false
 required:
 - prebuilt
+- account
+- user
+- database
+- schema
 properties:
   prebuilt:
     type: string
     enum:
     - snowflake
-    description: Google MCP Toolbox prebuilt connector to invoke.
-  database:
-    type: string
-    description: Database name for the selected external source.
-  host:
-    type: string
-    description: Database host for networked Toolbox prebuilts.
-  port:
-    type: string
-    description: Database port for networked Toolbox prebuilts.
-  user:
-    type: string
-    description: Database user for networked Toolbox prebuilts.
-  query_params:
-    type: string
-    description: Optional PostgreSQL query params passed to Toolbox.
+    title: SQL interface
+    default: snowflake
+    description: Snowflake SQL interface; this extension cannot select another database.
+    const: snowflake
+    readOnly: true
   account:
     type: string
-    description: Account identifier for account-scoped sources such as Snowflake.
-  project:
+    title: Account identifier
+    description: Snowflake account identifier.
+  user:
     type: string
-    description: Cloud project for managed Google Cloud sources.
-  region:
+    title: User
+    description: Snowflake user.
+  database:
     type: string
-    description: Cloud region for managed Google Cloud sources.
-  cluster:
-    type: string
-    description: Cluster identifier for managed database sources.
-  instance:
-    type: string
-    description: Instance identifier for managed database sources.
-  ip_type:
-    type: string
-    description: Public or private IP mode for managed database sources.
-  protocol:
-    type: string
-    description: Source protocol, such as native or http for ClickHouse.
+    title: Database
+    description: Snowflake database.
   schema:
     type: string
-    description: Default database schema.
+    title: Schema
+    description: Snowflake schema (required by the pinned source).
   warehouse:
     type: string
-    description: Compute warehouse for Snowflake.
+    title: Warehouse
+    description: Snowflake compute warehouse. The pinned driver defaults to COMPUTE_WH when omitted.
   role:
     type: string
-    description: Database role for Snowflake.
-  dialect:
-    type: string
-    description: SQL dialect for Spanner.
+    title: Role
+    description: Snowflake role. Set an appropriate least-privilege role; the pinned driver defaults
+      to ACCOUNTADMIN when omitted.
   env:
     type: object
-    additionalProperties:
-      type: string
-    description: Optional explicit Toolbox environment variables.
-allOf:
-- if:
+    title: Advanced Snowflake environment
+    additionalProperties: false
     properties:
-      prebuilt:
-        enum:
-        - alloydb-omni
-        - clickhouse
-        - mariadb
-        - mssql
-        - mysql
-        - oceanbase
-        - postgres
-        - singlestore
-    required:
-    - prebuilt
-  then:
-    required:
-    - host
-    - database
-    - user
-- if:
-    properties:
-      prebuilt:
-        enum:
-        - cloud-sql-mssql
-        - cloud-sql-mysql
-        - cloud-sql-postgres
-    required:
-    - prebuilt
-  then:
-    required:
-    - project
-    - region
-    - instance
-    - database
-    - user
-- if:
-    properties:
-      prebuilt:
-        const: alloydb-postgres
-    required:
-    - prebuilt
-  then:
-    required:
-    - project
-    - region
-    - cluster
-    - instance
-    - database
-    - user
-- if:
-    properties:
-      prebuilt:
-        const: snowflake
-    required:
-    - prebuilt
-  then:
-    required:
-    - account
-    - user
-    - database
-- if:
-    properties:
-      prebuilt:
-        enum:
-        - spanner
-        - spanner-postgres
-    required:
-    - prebuilt
-  then:
-    required:
-    - project
-    - instance
-    - database
-- if:
-    properties:
-      prebuilt:
-        const: sqlite
-    required:
-    - prebuilt
-  then:
-    required:
-    - database
+      SNOWFLAKE_ACCOUNT:
+        type: string
+      SNOWFLAKE_USER:
+        type: string
+      SNOWFLAKE_DATABASE:
+        type: string
+      SNOWFLAKE_SCHEMA:
+        type: string
+      SNOWFLAKE_WAREHOUSE:
+        type: string
+      SNOWFLAKE_ROLE:
+        type: string
+    description: Optional Snowflake source environment overrides only. Credentials belong in secrets.
