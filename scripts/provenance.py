@@ -20,7 +20,7 @@ def binary_modules(path):
     record = inspect_binary(path)
     baseline = json.loads((ROOT / "scripts/native-security-baseline.json").read_text())
     check_floors(record, baseline)
-    if record["modules"].get("github.com/snowflakedb/gosnowflake/v2") != "v2.2.0":
+    if record["modules"].get("github.com/snowflakedb/gosnowflake/v2") != "v2.4.0":
         raise ValueError("Built Snowflake driver does not match the pinned security patch")
     return {"go_modules": record["modules"], "go_version": record["go_version"]}
 
@@ -36,18 +36,21 @@ def main():
         for target in TARGETS
     }
     data = {
-        "upstream_commit": "b0010060a939455d91e4f8ba62dc3e72b1892469",
-        "upstream_tag": "v1.3.0",
+        "upstream_commit": "06ea49d9a487a72c22419b5a8d5c22c11f0d7485",
+        "upstream_tag": "v1.16.0",
         "source": "https://github.com/googleapis/mcp-toolbox",
         "go_image": (
-            "golang:1.26.10-bookworm@sha256:"
-            "5de7c99eb78ca5e515a4c340235d0955ec5964a5071c492c15503d7c267da473"
+            "golang:1.27.3-bookworm@sha256:"
+            "dc0963f32053e4bc451d24d87e3892d42d01021b61f093e98eb95c0352bb84b0"
         ),
         "registered_prebuilts": (ROOT / "scripts/toolbox-prebuilts.txt").read_text().split(),
         "patch_sha256": digest(
             ROOT / "scripts/patches/0001-flowsteward-driver-bound-query-params.patch"
         ),
         "dependency_patches": {
+            "scripts/patches/0003-approved-prebuilt-profiles.patch": digest(
+                ROOT / "scripts/patches/0003-approved-prebuilt-profiles.patch"
+            ),
             "scripts/patches/0002-go-security-baseline.patch": digest(
                 ROOT / "scripts/patches/0002-go-security-baseline.patch"
             )
