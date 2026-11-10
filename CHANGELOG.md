@@ -1,3 +1,8 @@
+## 1.3.5 — 2026-11-10
+
+- Rebuild the same Toolbox source and module graph with checksum-pinned Go 1.27.4.
+- Preserve approved profiles, bound queries and existing native safety controls.
+
 ## 1.3.4 — 2026-11-10
 
 - Explicitly preserve Snowflake OCSP revocation checking in its prior fail-open mode.
