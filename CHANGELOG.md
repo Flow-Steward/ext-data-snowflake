@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.3
+
+- Rebuild both native targets with Go 1.26.10 and the reviewed module security baseline.
+- Retain pinned Toolbox source and driver-bound query safety controls.
+- Record actual per-target linked modules and reject stale payloads before release.
+
 ## 1.3.2
 
 - Rebuild both native architectures with gosnowflake/v2 v2.2.0 to fix diagnostic log credential leakage (CVE-2026-86597 / GHSA-qqj6-54q6-cxv6).

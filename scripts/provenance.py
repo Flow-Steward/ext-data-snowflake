@@ -3,8 +3,9 @@
 
 import hashlib
 import json
-import subprocess  # nosec B404
 from pathlib import Path
+
+from native_security import check_floors, inspect_binary
 
 ROOT = Path(__file__).resolve().parents[1]
 TARGETS = ("linux-amd64", "linux-arm64")
@@ -15,27 +16,20 @@ def digest(path):
 
 
 def binary_modules(path):
-    # Static inspection only: the Linux payload is never run on the build host.
-    info = subprocess.run(  # nosec B603 B607: fixed Go tool and local build artifact
-        ["go", "version", "-m", str(path)], check=True, capture_output=True, text=True
-    )
-    modules = {}
-    for line in info.stdout.splitlines():
-        fields = line.split()
-        if fields and fields[0] == "=>":
-            raise ValueError("Module replacements must be explicitly recorded before release")
-        if fields and fields[0] == "dep":
-            modules[fields[1]] = fields[2]
-    if modules.get("github.com/snowflakedb/gosnowflake/v2") != "v2.2.0":
+    # Static inspection only; release payloads are never executed here.
+    record = inspect_binary(path)
+    baseline = json.loads((ROOT / "scripts/native-security-baseline.json").read_text())
+    check_floors(record, baseline)
+    if record["modules"].get("github.com/snowflakedb/gosnowflake/v2") != "v2.2.0":
         raise ValueError("Built Snowflake driver does not match the pinned security patch")
-    return modules
+    return {"go_modules": record["modules"], "go_version": record["go_version"]}
 
 
 def main():
     records = {
         target: {
             "path": f"bin/{target}/toolbox",
-            "go_modules": binary_modules(ROOT / f"bin/{target}/toolbox"),
+            **binary_modules(ROOT / f"bin/{target}/toolbox"),
             "sha256": digest(ROOT / f"bin/{target}/toolbox"),
             "size": (ROOT / f"bin/{target}/toolbox").stat().st_size,
         }
@@ -46,16 +40,16 @@ def main():
         "upstream_tag": "v1.3.0",
         "source": "https://github.com/googleapis/mcp-toolbox",
         "go_image": (
-            "golang:1.26.2-bookworm@sha256:"
-            "47ce5636e9936b2c5cbf708925578ef386b4f8872aec74a67bd13a627d242b19"
+            "golang:1.26.10-bookworm@sha256:"
+            "5de7c99eb78ca5e515a4c340235d0955ec5964a5071c492c15503d7c267da473"
         ),
         "registered_prebuilts": (ROOT / "scripts/toolbox-prebuilts.txt").read_text().split(),
         "patch_sha256": digest(
             ROOT / "scripts/patches/0001-flowsteward-driver-bound-query-params.patch"
         ),
         "dependency_patches": {
-            "scripts/patches/0002-snowflake-driver-security.patch": digest(
-                ROOT / "scripts/patches/0002-snowflake-driver-security.patch"
+            "scripts/patches/0002-go-security-baseline.patch": digest(
+                ROOT / "scripts/patches/0002-go-security-baseline.patch"
             )
         },
         "binaries": records,

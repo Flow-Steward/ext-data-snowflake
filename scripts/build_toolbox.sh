@@ -6,8 +6,8 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 VARIANT=snowflake
 TOOLBOX_TAG=v1.3.0
 TOOLBOX_COMMIT=b0010060a939455d91e4f8ba62dc3e72b1892469
-GO_IMAGE=golang:1.26.2-bookworm@sha256:47ce5636e9936b2c5cbf708925578ef386b4f8872aec74a67bd13a627d242b19
-DEPENDENCY_PATCH=scripts/patches/0002-snowflake-driver-security.patch
+GO_IMAGE=golang:1.26.10-bookworm@sha256:5de7c99eb78ca5e515a4c340235d0955ec5964a5071c492c15503d7c267da473
+DEPENDENCY_PATCH=scripts/patches/0002-go-security-baseline.patch
 PATCH=scripts/patches/0001-flowsteward-driver-bound-query-params.patch
 # This repository pins only Snowflake SQL interfaces.
 test -f "$ROOT/scripts/toolbox-prebuilts.txt" \

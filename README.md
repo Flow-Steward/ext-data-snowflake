@@ -1,6 +1,6 @@
 # Snowflake for Flow Steward
 
-Connect **Snowflake** datasets and run parameterized workflow writes. This repository contains one installable Snowflake extension, version **1.3.2**, with separate Linux AMD64 and ARM64 archives. No other database can be selected or installed from this package.
+Connect **Snowflake** datasets and run parameterized workflow writes. This repository contains one installable Snowflake extension, version **1.3.3**, with separate Linux AMD64 and ARM64 archives. No other database can be selected or installed from this package.
 
 ## Set up a Snowflake connection
 
@@ -49,3 +49,5 @@ python3 scripts/package_extension.py --runtime-target linux-arm64
 ## Verification limits
 
 Manifest isolation checks cover friendly names, database-specific fields, credential separation and the exact shipped SQL profiles. Contract tests cover scope/ref checks, parameter separation, test-mode suppression, output bounds and unknown write outcomes. No live Snowflake credentials were supplied; compile and contract evidence does not establish a successful authenticated database connection.
+
+Native payloads are rebuilt with pinned Go 1.26.10 and the reviewed module security baseline. Per-target toolchain, linked modules, size and SHA-256 are recorded in `toolbox-provenance.json`; static packaged checks reject stale native dependencies.
