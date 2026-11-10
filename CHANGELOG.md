@@ -1,5 +1,7 @@
 ## 1.3.4 — 2026-11-10
 
+- Explicitly preserve Snowflake OCSP revocation checking in its prior fail-open mode.
+
 - Upgrade pinned Toolbox to v1.16.0 and Go 1.27.3 with the reviewed dependency graph.
 - Retain approved database profiles, driver parameter binding and native security gates.
 - Disable startup version checks for fixed offline stdio launches.

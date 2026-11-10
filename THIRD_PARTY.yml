@@ -28,6 +28,8 @@ build:
     purpose: Apply reviewed module security floors while preserving pinned Toolbox source and native SQL controls.
   - path: scripts/patches/0003-approved-prebuilt-profiles.patch
     purpose: Freeze approved prebuilt YAML from v1.3.0 while preserving v1.16.0 implementation identity.
+  - path: scripts/patches/0004-snowflake-ocsp-compatibility.patch
+    purpose: Retain the prior OCSP fail-open revocation checks with driver 2.4.0 defaults; preserve the existing environment opt-out.
   patched_dependencies:
     cel.dev/expr: v0.26.0
     cloud.google.com/go/alloydb: v1.33.1
@@ -137,4 +139,4 @@ build:
     google.golang.org/grpc: v1.85.0
   linked_dependency_inventory: toolbox-provenance.json#binaries (per-target go_modules and go_version)
   security_advisory: https://github.com/advisories/GHSA-qqj6-54q6-cxv6
-  driver_release_notes: https://docs.snowflake.com/en/release-notes/clients-drivers/golang-2026#version-220-sep-03-2026
+  driver_release_notes: https://docs.snowflake.com/en/release-notes/clients-drivers/golang-2026

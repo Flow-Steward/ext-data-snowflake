@@ -48,6 +48,9 @@ def main():
             ROOT / "scripts/patches/0001-flowsteward-driver-bound-query-params.patch"
         ),
         "dependency_patches": {
+            "scripts/patches/0004-snowflake-ocsp-compatibility.patch": digest(
+                ROOT / "scripts/patches/0004-snowflake-ocsp-compatibility.patch"
+            ),
             "scripts/patches/0003-approved-prebuilt-profiles.patch": digest(
                 ROOT / "scripts/patches/0003-approved-prebuilt-profiles.patch"
             ),

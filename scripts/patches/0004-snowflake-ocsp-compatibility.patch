@@ -1,0 +1,74 @@
+diff --git a/internal/sources/snowflake/flowsteward_ocsp_test.go b/internal/sources/snowflake/flowsteward_ocsp_test.go
+new file mode 100644
+index 0000000000..3745a0ca03
+--- /dev/null
++++ b/internal/sources/snowflake/flowsteward_ocsp_test.go
+@@ -0,0 +1,46 @@
++package snowflake
++
++import (
++	"context"
++	"database/sql/driver"
++	"errors"
++	"testing"
++
++	"github.com/snowflakedb/gosnowflake/v2"
++)
++
++var errFlowStewardOCSPCapture = errors.New("captured config without a network connection")
++
++type flowStewardOCSPDriver struct {
++	config gosnowflake.Config
++	calls  int
++}
++
++func (*flowStewardOCSPDriver) Open(string) (driver.Conn, error) {
++	return nil, errors.New("unexpected raw driver open")
++}
++func (d *flowStewardOCSPDriver) OpenWithConfig(_ context.Context, cfg gosnowflake.Config) (driver.Conn, error) {
++	d.config = cfg
++	d.calls++
++	return nil, errFlowStewardOCSPCapture
++}
++
++func TestFlowStewardSnowflakePreservesOCSPFailOpen(t *testing.T) {
++	t.Setenv("SF_DISABLE_OCSP_CHECKS", "")
++	dsn := flowStewardSnowflakeDSN("user", "password", "account", "database", "schema", "warehouse", "role")
++	cfg, err := gosnowflake.ParseDSN(dsn)
++	if err != nil {
++		t.Fatal(err)
++	}
++	d := &flowStewardOCSPDriver{}
++	connector := gosnowflake.NewConnector(d, *cfg)
++	if _, err = connector.Connect(context.Background()); !errors.Is(err, errFlowStewardOCSPCapture) {
++		t.Fatalf("constructor: %v", err)
++	}
++	if d.calls != 1 || d.config.DisableOCSPChecks || d.config.OCSPFailOpen != gosnowflake.OCSPFailOpenTrue {
++		t.Fatalf("revocation checking lost prior fail-open mode: calls=%d disabled=%v mode=%v", d.calls, d.config.DisableOCSPChecks, d.config.OCSPFailOpen)
++	}
++	if d.config.Account != "account" || d.config.User != "user" || d.config.Database != "database" || d.config.Warehouse != "warehouse" || d.config.Role != "role" {
++		t.Fatalf("connection settings changed: account=%q user=%q database=%q warehouse=%q role=%q", d.config.Account, d.config.User, d.config.Database, d.config.Warehouse, d.config.Role)
++	}
++}
+diff --git a/internal/sources/snowflake/snowflake.go b/internal/sources/snowflake/snowflake.go
+index a47e840da2..eb05590f5c 100644
+--- a/internal/sources/snowflake/snowflake.go
++++ b/internal/sources/snowflake/snowflake.go
+@@ -154,7 +154,7 @@ func initSnowflakeConnection(ctx context.Context, tracer trace.Tracer, name, acc
+ 	}
+ 
+ 	// Snowflake DSN format: user:password@account/database/schema?warehouse=warehouse&role=role
+-	dsn := fmt.Sprintf("%s:%s@%s/%s/%s?warehouse=%s&role=%s", user, password, account, database, schema, warehouse, role)
++	dsn := flowStewardSnowflakeDSN(user, password, account, database, schema, warehouse, role)
+ 	db, err := sqlx.ConnectContext(ctx, "snowflake", dsn)
+ 	if err != nil {
+ 		return nil, fmt.Errorf("unable to create connection: %w", err)
+@@ -180,3 +180,8 @@ func (s *Source) RunWrite(ctx context.Context, statement string, params []any) (
+ 	}
+ 	return []any{map[string]any{"affected_rows": affected}}, nil
+ }
++
++// flowStewardSnowflakeDSN supplies the fixed driver connection parameters.
++func flowStewardSnowflakeDSN(user, password, account, database, schema, warehouse, role string) string {
++	return fmt.Sprintf("%s:%s@%s/%s/%s?warehouse=%s&role=%s&ocspFailOpen=true", user, password, account, database, schema, warehouse, role)
++}

@@ -56,3 +56,8 @@ The native build freezes the previously approved prebuilt YAML from Toolbox v1.3
 using `0003-approved-prebuilt-profiles.patch`; the implementation source and recorded
 version remain Toolbox v1.16.0. Unused source, tool, prompt and resource registrations
 are removed. Managed stdio launches use `--disable-version-check`.
+
+The Snowflake DSN explicitly retains OCSP revocation checking in its prior
+fail-open mode; the existing `SF_DISABLE_OCSP_CHECKS=true` environment opt-out
+retains its upstream behavior. This prevents the newer driver default from
+silently disabling checking for ordinary connection settings.

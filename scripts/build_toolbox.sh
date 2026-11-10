@@ -10,6 +10,7 @@ GO_IMAGE=golang:1.27.3-bookworm@sha256:dc0963f32053e4bc451d24d87e3892d42d01021b6
 DEPENDENCY_PATCH=scripts/patches/0002-go-security-baseline.patch
 PATCH=scripts/patches/0001-flowsteward-driver-bound-query-params.patch
 PROFILE_PATCH=scripts/patches/0003-approved-prebuilt-profiles.patch
+OCSP_PATCH=scripts/patches/0004-snowflake-ocsp-compatibility.patch
 # This repository pins only Snowflake SQL interfaces.
 test -f "$ROOT/scripts/toolbox-prebuilts.txt" \
   || { echo "[FAIL] missing fixed database prebuilt list" >&2; exit 2; }
@@ -19,7 +20,7 @@ mkdir -p "$ROOT"
 docker run --rm --name "fs-special-$VARIANT-build-20261110" --cpus=2 --memory=4g \
   -v flow-steward-db-batch-go-cache:/go/pkg/mod -v flow-steward-db-batch-build-cache:/root/.cache/go-build \
   -e TOOLBOX_TAG="$TOOLBOX_TAG" -e TOOLBOX_COMMIT="$TOOLBOX_COMMIT" -e PATCH="$PATCH" \
-  -e PROFILE_PATCH="$PROFILE_PATCH" -e DEPENDENCY_PATCH="$DEPENDENCY_PATCH" -e PREBUILTS="$PREBUILTS" -e VARIANT="$VARIANT" \
+  -e OCSP_PATCH="$OCSP_PATCH" -e PROFILE_PATCH="$PROFILE_PATCH" -e DEPENDENCY_PATCH="$DEPENDENCY_PATCH" -e PREBUILTS="$PREBUILTS" -e VARIANT="$VARIANT" \
   -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
   -v "$ROOT:/out" "$GO_IMAGE" sh -c '
     set -eu
@@ -30,6 +31,7 @@ docker run --rm --name "fs-special-$VARIANT-build-20261110" --cpus=2 --memory=4g
     git apply "/out/$PROFILE_PATCH"
     git apply "/out/$PATCH"
     git apply "/out/$DEPENDENCY_PATCH"
+    git apply "/out/$OCSP_PATCH"
     # Never let module resolution silently change the reviewed security patch.
     sha256sum go.mod go.sum > /tmp/go-module-checksums
     export GOFLAGS=-mod=readonly
@@ -69,6 +71,8 @@ docker run --rm --name "fs-special-$VARIANT-build-20261110" --cpus=2 --memory=4g
     for package in $(cat /tmp/packages); do
       go test -p 1 "./${package#github.com/googleapis/mcp-toolbox/}"
     done
+    go test -p 1 -run "TestOCSPResolver|TestFillMissingDoesNotMutateOCSPFields|TestDSNOmitsUnsetOCSPFailOpen|TestSFOCSPDisableChecksEnvVar" \
+      github.com/snowflakedb/gosnowflake/v2/internal/config
     export SOURCE_DATE_EPOCH=1793908560
     for target in linux-amd64 linux-arm64; do
       arch=${target#linux-}
