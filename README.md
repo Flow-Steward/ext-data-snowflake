@@ -1,6 +1,6 @@
 # Snowflake for Flow Steward
 
-Connect **Snowflake** datasets and run parameterized workflow writes. This repository contains one installable Snowflake extension, version **1.3.1**, with separate Linux AMD64 and ARM64 archives. No other database can be selected or installed from this package.
+Connect **Snowflake** datasets and run parameterized workflow writes. This repository contains one installable Snowflake extension, version **1.3.2**, with separate Linux AMD64 and ARM64 archives. No other database can be selected or installed from this package.
 
 ## Set up a Snowflake connection
 
@@ -35,7 +35,7 @@ The visible name is Snowflake. The legacy extension ID `flowsteward.data-connect
 
 ## Technical implementation and packaging
 
-Google MCP Toolbox is implementation tooling, pinned to tag `v1.3.0`, commit `b0010060a939455d91e4f8ba62dc3e72b1892469`. Its fixed native build registers only this repository's Snowflake interfaces. Installation and runtime download no drivers. Existing native binaries and provenance are unchanged by the 1.3.0 UI/schema correction.
+Google MCP Toolbox is implementation tooling, pinned to tag `v1.3.0`, commit `b0010060a939455d91e4f8ba62dc3e72b1892469`. Its fixed native build registers only this repository's Snowflake interfaces. Installation and runtime download no drivers. The local security module patch pins `github.com/snowflakedb/gosnowflake/v2` to `v2.2.0`, fixing diagnostic credential leakage (CVE-2026-86597). The original driver-bound SQL patch remains applied. Actual linked Go module versions are recorded in `toolbox-provenance.json`.
 
 To package the existing verified binaries:
 
@@ -44,7 +44,7 @@ python3 scripts/package_extension.py --runtime-target linux-amd64
 python3 scripts/package_extension.py --runtime-target linux-arm64
 ```
 
-`scripts/build_toolbox.sh` is the optional pinned implementation rebuild; it cannot select another database. `toolbox-provenance.json`, `THIRD_PARTY.yml` and root `SHA256SUMS` describe the native payloads. Each installer ZIP contains exactly one executable for its target and target/native metadata. The byte-exact Apache-2.0 license is in `LICENSE`; implementation notices are in `NOTICE`.
+`scripts/build_toolbox.sh` is the optional pinned implementation rebuild (Docker, Python 3 and host Go for static build-info inspection are required); it cannot select another database. `toolbox-provenance.json`, `THIRD_PARTY.yml` and root `SHA256SUMS` describe the native payloads. Each installer ZIP contains exactly one executable for its target and target/native metadata. The byte-exact Apache-2.0 license is in `LICENSE`; implementation notices are in `NOTICE`.
 
 ## Verification limits
 

@@ -28,3 +28,11 @@ build:
   local_patch_purpose: Native driver-bound query parameters; explicit one-shot ExecContext
     DML; Spanner statement-based Update and Commit without a transaction retry loop.
   network_at_install_or_runtime: false
+  dependency_patches:
+  - path: scripts/patches/0002-snowflake-driver-security.patch
+    purpose: Pin gosnowflake/v2 v2.2.0 and required transitive module upgrades to fix CVE-2026-86597.
+  patched_dependencies:
+    github.com/snowflakedb/gosnowflake/v2: v2.2.0
+  linked_dependency_inventory: toolbox-provenance.json#binaries (per-target go_modules)
+  security_advisory: https://github.com/advisories/GHSA-qqj6-54q6-cxv6
+  driver_release_notes: https://docs.snowflake.com/en/release-notes/clients-drivers/golang-2026#version-220-sep-03-2026

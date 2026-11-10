@@ -7,6 +7,7 @@ VARIANT=snowflake
 TOOLBOX_TAG=v1.3.0
 TOOLBOX_COMMIT=b0010060a939455d91e4f8ba62dc3e72b1892469
 GO_IMAGE=golang:1.26.2-bookworm@sha256:47ce5636e9936b2c5cbf708925578ef386b4f8872aec74a67bd13a627d242b19
+DEPENDENCY_PATCH=scripts/patches/0002-snowflake-driver-security.patch
 PATCH=scripts/patches/0001-flowsteward-driver-bound-query-params.patch
 # This repository pins only Snowflake SQL interfaces.
 test -f "$ROOT/scripts/toolbox-prebuilts.txt" \
@@ -17,7 +18,7 @@ mkdir -p "$ROOT"
 docker run --rm --cpus=1 --memory=2g \
   -v flow-steward-db-batch-go-cache:/go/pkg/mod -v flow-steward-db-batch-build-cache:/root/.cache/go-build \
   -e TOOLBOX_TAG="$TOOLBOX_TAG" -e TOOLBOX_COMMIT="$TOOLBOX_COMMIT" -e PATCH="$PATCH" \
-  -e PREBUILTS="$PREBUILTS" -e VARIANT="$VARIANT" \
+  -e DEPENDENCY_PATCH="$DEPENDENCY_PATCH" -e PREBUILTS="$PREBUILTS" -e VARIANT="$VARIANT" \
   -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
   -v "$ROOT:/out" "$GO_IMAGE" sh -c '
     set -eu
@@ -26,6 +27,11 @@ docker run --rm --cpus=1 --memory=2g \
     test "$(git -C /src rev-parse HEAD)" = "$TOOLBOX_COMMIT"
     cd /src
     git apply "/out/$PATCH"
+    git apply "/out/$DEPENDENCY_PATCH"
+    # Never let module resolution silently change the reviewed security patch.
+    sha256sum go.mod go.sum > /tmp/go-module-checksums
+    export GOFLAGS=-mod=readonly
+    test "$(go list -m -f '"'"'{{.Version}}'"'"' github.com/snowflakedb/gosnowflake/v2)" = v2.2.0
 
     # Every resource type the prebuilt configurations name ...
     : > /tmp/types
@@ -69,6 +75,7 @@ docker run --rm --cpus=1 --memory=2g \
       chmod 0755 "/out/bin/$target/toolbox"
       echo "[PASS] $VARIANT $target: $(stat -c %s "/out/bin/$target/toolbox") bytes"
     done
+    sha256sum -c /tmp/go-module-checksums
     chown -R "$HOST_UID:$HOST_GID" "/out/bin" "/out/packages.txt"
   '
 

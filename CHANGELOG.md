@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.2
+
+- Rebuild both native architectures with gosnowflake/v2 v2.2.0 to fix diagnostic log credential leakage (CVE-2026-86597 / GHSA-qqj6-54q6-cxv6).
+- Preserve Toolbox v1.3.0, scoped Snowflake interfaces, native parameter binding and one-shot workflow writes.
+- Pin the dependency upgrade in reviewed go.mod/go.sum metadata and record actual linked module versions in native provenance.
+- Add static binary regression checks that reject vulnerable driver versions or inaccurate dependency provenance.
+
+
 ## 1.3.1
 
 - Use official database brand artwork with recorded source attribution.
