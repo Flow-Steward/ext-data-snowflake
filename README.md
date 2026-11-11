@@ -1,6 +1,14 @@
 # Snowflake for Flow Steward
 
-Connect **Snowflake** datasets and run parameterized workflow writes. This repository contains one installable Snowflake extension, version **1.3.5**, with separate Linux AMD64 and ARM64 archives. No other database can be selected or installed from this package.
+Flow Steward extension `flowsteward.data-connector-mcp-toolbox-snowflake`, version **1.3.6**.
+
+Bring Snowflake data into Flow Steward through saved, parameterized Dataset queries. The connector tests connections, discovers typed schemas, validates selected tables and columns, previews results, executes saved SQL and infers output schemas. Reads use the read-only query path and return at most 100 rows and 480 KiB of inline output. Use these results to supply a workflow with the warehouse records needed for a decision or follow-up action.
+
+Workflow writes are exposed separately through execute_write, which accepts one INSERT, UPDATE or DELETE with named parameters, a values object and an optional parameter schema. For example, query a review queue, route a record for approval, then update its status or insert an audit outcome. Parameter values stay separate from the SQL text, allowing the same step to process different records.
+
+Connections explicitly select the Snowflake account, database, schema, warehouse, user and role, with the password stored as a secret. Choose a role with the permissions your reads and writes require. Dataset queries stay read-only; this extension does not expose triggers, warehouse administration, schema-changing statements or multi-statement scripts. Use saved queries and explicit write steps together to turn warehouse findings into review tasks, notifications and recorded outcomes.
+
+Create a project connection with account identifier, user, database, schema, warehouse and role, and store the user password in connection secrets. Warehouse and role are required explicitly; select a role with suitable privileges for the intended queries and workflow writes.
 
 ## Set up a Snowflake connection
 
