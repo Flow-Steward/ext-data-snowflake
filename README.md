@@ -1,6 +1,6 @@
 # Snowflake for Flow Steward
 
-Flow Steward extension `flowsteward.data-connector-mcp-toolbox-snowflake`, version **1.3.6**.
+Flow Steward extension `flowsteward.data-connector-mcp-toolbox-snowflake`, version **1.3.7**.
 
 Bring Snowflake data into Flow Steward through saved, parameterized Dataset queries. The connector tests connections, discovers typed schemas, validates selected tables and columns, previews results, executes saved SQL and infers output schemas. Reads use the read-only query path and return at most 100 rows and 480 KiB of inline output. Use these results to supply a workflow with the warehouse records needed for a decision or follow-up action.
 
@@ -74,3 +74,31 @@ The pinned Go 1.27.3 image supplies only the bootstrap operating environment.
 Before any Go command, the build installs the checksum-verified official Go
 1.27.4 SDK recorded in `scripts/go-toolchain-sources.json`; provenance records
 the installer, selected SDK, and actual compiler embedded in each payload.
+
+## Automated releases
+
+CI runs on pull requests and pushes to `main`. Official releases run through the
+pinned shared GitHub Actions workflow using `.github/release-config.json` to test,
+package both Linux runtime targets, and publish the release assets automatically.
+Manual ZIP uploads are not part of the release process.
+
+After merging the version **1.3.7** update into `main`, create and push its tag:
+
+```sh
+git switch main
+git pull --ff-only
+git tag -a v1.3.7 -m "Release v1.3.7"
+git push origin v1.3.7
+```
+
+To rerun the workflow for an existing tag without moving it:
+
+```sh
+gh workflow run release.yml --ref main -f tag=v1.3.7
+```
+
+The manifest remains the source for release identity and catalog descriptions.
+The shared workflow installs the verified first-party SDK wheel before test
+dependencies. Where native payloads are absent from source, the recipe restores
+only the listed missing files from checksum-pinned published archives; the source
+packager still verifies their provenance before packaging.
