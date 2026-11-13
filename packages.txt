@@ -1,3 +1,0 @@
-github.com/googleapis/mcp-toolbox/internal/sources/snowflake
-github.com/googleapis/mcp-toolbox/internal/tools/snowflake/snowflakeexecutesql
-github.com/googleapis/mcp-toolbox/internal/tools/snowflake/snowflakesql

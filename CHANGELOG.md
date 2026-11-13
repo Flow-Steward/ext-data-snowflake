@@ -1,5 +1,12 @@
 ## 1.3.5 — 2026-11-10
 
+## 1.3.9
+
+- Rebuild Toolbox 1.17.0 from pinned source for Linux AMD64 and ARM64.
+- Update the reviewed Google, PostgreSQL and AWS module graph while retaining SQL/vector/profile controls.
+- CI generates and verifies native provenance and package hashes before publication.
+
+
 - Rebuild the same Toolbox source and module graph with checksum-pinned Go 1.27.4.
 - Preserve approved profiles, bound queries and existing native safety controls.
 

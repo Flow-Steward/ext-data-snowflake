@@ -4,8 +4,8 @@ set -eu
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 VARIANT=snowflake
-TOOLBOX_TAG=v1.16.0
-TOOLBOX_COMMIT=06ea49d9a487a72c22419b5a8d5c22c11f0d7485
+TOOLBOX_TAG=v1.17.0
+TOOLBOX_COMMIT=45ed205cc8682ed066c82e0b65bcd0e8fc3becce
 BOOTSTRAP_IMAGE=golang:1.27.3-bookworm@sha256:dc0963f32053e4bc451d24d87e3892d42d01021b61f093e98eb95c0352bb84b0
 DEPENDENCY_PATCH=scripts/patches/0002-go-security-baseline.patch
 PATCH=scripts/patches/0001-flowsteward-driver-bound-query-params.patch
@@ -17,18 +17,31 @@ test -f "$ROOT/scripts/toolbox-prebuilts.txt" \
 PREBUILTS=$(cat "$ROOT/scripts/toolbox-prebuilts.txt")
 mkdir -p "$ROOT"
 
-docker run --rm --name "fs-special-$VARIANT-finalpatch-build-20261110" --cpus=2 --memory=4g \
+set --
+if test -n "${FS_TOOLBOX_SOURCE_DIR:-${TOOLBOX_SOURCE:-}}"; then
+  fs_toolbox_source=${FS_TOOLBOX_SOURCE_DIR:-$TOOLBOX_SOURCE}
+  test -z "$(git -C "$fs_toolbox_source" status --porcelain --untracked-files=all)"
+  set -- --mount "type=bind,source=$fs_toolbox_source,target=/upstream,readonly"
+fi
+
+docker run --rm --name "fs-snowflake-native-build-$$" --label flow-steward.owner=ext-data-snowflake-native-build --cpus=2 --memory=4g \
   -v flow-steward-db-batch-go-cache:/go/pkg/mod -v flow-steward-db-batch-build-cache:/root/.cache/go-build \
   -e TOOLBOX_TAG="$TOOLBOX_TAG" -e TOOLBOX_COMMIT="$TOOLBOX_COMMIT" -e PATCH="$PATCH" \
   -e OCSP_PATCH="$OCSP_PATCH" -e PROFILE_PATCH="$PROFILE_PATCH" -e DEPENDENCY_PATCH="$DEPENDENCY_PATCH" -e PREBUILTS="$PREBUILTS" -e VARIANT="$VARIANT" \
   -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
-  -v "$ROOT:/out" "$BOOTSTRAP_IMAGE" sh -c '
+  -v "$ROOT:/out" "$@" "$BOOTSTRAP_IMAGE" sh -c '
     set -eu
-    export GOTOOLCHAIN=local
+    export GOTOOLCHAIN=local GOMAXPROCS=2
     sh /out/scripts/install-go-toolchain.sh /out/scripts/go-toolchain-selected.json
-    git clone --quiet --filter=blob:none --branch "$TOOLBOX_TAG" --depth 1 \
-      https://github.com/googleapis/mcp-toolbox.git /src
-    test "$(git -C /src rev-parse HEAD)" = "$TOOLBOX_COMMIT"
+    if test -d /upstream; then
+      mkdir /src
+      git -c safe.directory=/upstream -C /upstream archive --format=tar HEAD | tar -x -C /src
+      test "$(git -c safe.directory=/upstream -C /upstream rev-parse HEAD)" = "$TOOLBOX_COMMIT"
+    else
+      git clone --quiet --filter=blob:none --branch "$TOOLBOX_TAG" --depth 1 \
+        https://github.com/googleapis/mcp-toolbox.git /src
+      test "$(git -C /src rev-parse HEAD)" = "$TOOLBOX_COMMIT"
+    fi
     cd /src
     git apply "/out/$PROFILE_PATCH"
     git apply "/out/$PATCH"
@@ -75,7 +88,7 @@ docker run --rm --name "fs-special-$VARIANT-finalpatch-build-20261110" --cpus=2 
     done
     go test -p 1 -run "TestOCSPResolver|TestFillMissingDoesNotMutateOCSPFields|TestDSNOmitsUnsetOCSPFailOpen|TestSFOCSPDisableChecksEnvVar" \
       github.com/snowflakedb/gosnowflake/v2/internal/config
-    export SOURCE_DATE_EPOCH=1793908560
+    export SOURCE_DATE_EPOCH=1794536030
     for target in linux-amd64 linux-arm64; do
       arch=${target#linux-}
       mkdir -p "/out/bin/$target"
