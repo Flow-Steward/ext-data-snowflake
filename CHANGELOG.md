@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.12
+
+- Rebuild Linux AMD64 and ARM64 payloads with grpc-gateway v2.34.0, Arrow v18.9.0, AWS config v1.33.19, credentials v1.21.1 and S3 transfermanager v0.5.8.
+- Include the required module closure while preserving pinned Toolbox v1.17.0, Go 1.27.4, bound SQL controls, approved profiles and Snowflake OCSP behavior.
+
 ## 1.3.11
 
 ### Added
