@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.13
+
+- Refresh the bundled Google API, Gen AI, OpenTelemetry, JWK, HTTP, and compression modules for Linux AMD64 and ARM64.
+- Refresh AWS configuration, credentials, STS, sign-in, and S3 transfer dependencies.
+- Keep the pinned Toolbox source, Go 1.27.4 toolchain, approved database profile, and native SQL controls.
+
+[Full changelog](https://github.com/Flow-Steward/ext-data-snowflake/compare/v1.3.12...v1.3.13)
+
 ## 1.3.12
 
 - Rebuild Linux AMD64 and ARM64 payloads with grpc-gateway v2.34.0, Arrow v18.9.0, AWS config v1.33.19, credentials v1.21.1 and S3 transfermanager v0.5.8.
