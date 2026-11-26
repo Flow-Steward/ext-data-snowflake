@@ -1,5 +1,6 @@
-# 1.3.14
+# 1.3.15
 
-- Rebuild Toolbox 1.18.0 from pinned source for Linux AMD64 and ARM64.
-- Update Cloud SQL Connector, Spanner, LZ4 and the OpenTelemetry Auto SDK in the build graph.
-- Preserve the approved database profiles and Flow Steward query binding.
+- Use the upstream Gorilla WebSocket masking fix for GHSA-w67g-5rqw-f597.
+- Rebuild Linux AMD64 and ARM64 from the reviewed Go module lock.
+- Update Google API to v0.317.0 and Google Cloud Auth to v0.24.5.
+- Update AWS Smithy to v1.28.10 and S3 Transfer Manager to v0.5.12.
